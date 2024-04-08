@@ -34,9 +34,12 @@ class MainWindow:
         if self.ammount_ms_entry.get():
             ms_to_add = int(self.ammount_ms_entry.get())
         lines = self.text_widget.get("1.0", "end-1c").split("\n")
+        valid_lines = []
+        invalid_lines = []
         for i, line in enumerate(lines, 1):
             if not is_valid_line(line):
                  print(f"Invalid line: {line}")
+                 invalid_lines.append(line)
             else:
                 time_str = line.split(",")[2].strip()
                 time_format = "%Y-%m-%dT%H:%M:%S.%f"
@@ -46,5 +49,12 @@ class MainWindow:
                 if new_time_str.endswith('000'):
                         new_time_str = new_time_str[:-3]
                 lines[i-1] = line.replace(time_str, new_time_str)
-                print(lines[i-1])
-        print("---End---")
+                valid_lines.append(line.replace(time_str, new_time_str))
+        current_datetime = datetime.now()
+        if len(invalid_lines) >0:
+            file_name_invalid = f"invalid_commands_{current_datetime.strftime('%Y-%m-%d_%H')}.txt"
+            with open(file_name_invalid, "w") as f:
+                f.write("\n".join(invalid_lines))
+        file_name = f"commands_{current_datetime.strftime('%Y-%m-%d_%H')}.txt"
+        with open(file_name, "w") as f:
+            f.write("\n".join(valid_lines))
